@@ -206,7 +206,19 @@ function mergeFixtures(baseFixtures, patchFixtures) {
   const patchById = new Map(patchFixtures.map((fixture) => [fixture.id, fixture]));
   return baseFixtures.map((fixture) => {
     const patch = patchById.get(fixture.id);
-    return patch ? { ...fixture, ...patch } : fixture;
+    if (!patch) {
+      return fixture;
+    }
+
+    return {
+      ...fixture,
+      status: patch.status || fixture.status,
+      score: patch.score || fixture.score,
+      channel: patch.channel || fixture.channel,
+      channelSource: patch.channelSource || fixture.channelSource,
+      secondaryChannel: patch.secondaryChannel || fixture.secondaryChannel,
+      winnerTeamId: patch.winnerTeamId || fixture.winnerTeamId
+    };
   });
 }
 
