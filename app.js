@@ -61,7 +61,7 @@ async function init() {
 }
 
 async function fetchJson(path) {
-  const response = await fetch(path);
+  const response = await fetch(path, { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`Could not load ${path}`);
   }
@@ -142,7 +142,7 @@ function populateTeamFilterOptions() {
 
 async function refreshResults() {
   try {
-    const response = await fetch("/api/results");
+    const response = await fetch("/api/results", { cache: "no-store" });
     if (!response.ok) {
       throw new Error("Results API not available.");
     }
