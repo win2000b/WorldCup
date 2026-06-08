@@ -207,7 +207,7 @@ function mergeResultsIntoFixtures(fixtures, results) {
       nextFixture.secondaryChannel = result.secondaryChannel;
     }
 
-    if (result.homeTeamId) {
+    if (result.homeTeamId && isKnownTeam(result.homeTeamId)) {
       nextFixture.homeSlot = {
         type: "TEAM",
         teamId: result.homeTeamId,
@@ -215,7 +215,7 @@ function mergeResultsIntoFixtures(fixtures, results) {
       };
     }
 
-    if (result.awayTeamId) {
+    if (result.awayTeamId && isKnownTeam(result.awayTeamId)) {
       nextFixture.awaySlot = {
         type: "TEAM",
         teamId: result.awayTeamId,
@@ -223,7 +223,7 @@ function mergeResultsIntoFixtures(fixtures, results) {
       };
     }
 
-    if (result.winnerTeamId) {
+    if (result.winnerTeamId && isKnownTeam(result.winnerTeamId)) {
       nextFixture.winnerTeamId = result.winnerTeamId;
     }
 
@@ -479,6 +479,10 @@ function teamOwnerLabel(teamId, candidateTeamIds = []) {
 
 function getTeamName(teamId) {
   return state.teams.find((team) => team.id === teamId)?.name || "TBC";
+}
+
+function isKnownTeam(teamId) {
+  return state.teams.some((team) => team.id === teamId);
 }
 
 function getOwnerById(ownerId) {
