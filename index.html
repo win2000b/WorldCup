@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Family World Cup Sweepstake</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-shape bg-shape-one"></div>
+    <div class="bg-shape bg-shape-two"></div>
+
+    <main class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">Family Sweepstake</p>
+        <h1>World Cup Fixtures</h1>
+        <p class="subhead">
+          Kickoff times are shown in UK time. Results and channels update automatically when available.
+        </p>
+        <div class="meta-row" id="statusBar">Loading fixtures...</div>
+      </header>
+
+      <section class="controls" aria-label="Fixture filters">
+        <label>
+          Stage
+          <select id="stageFilter">
+            <option value="all">All stages</option>
+          </select>
+        </label>
+        <label>
+          Person
+          <select id="ownerFilter">
+            <option value="all">Everyone</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <h2 class="section-title">Matches</h2>
+        <div id="fixtureList" class="fixture-list" aria-live="polite"></div>
+      </section>
+
+      <section>
+        <h2 class="section-title">Teams by Person</h2>
+        <div id="ownerSummary" class="owner-summary"></div>
+      </section>
+    </main>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

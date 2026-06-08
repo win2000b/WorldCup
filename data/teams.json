@@ -1,0 +1,61 @@
+[
+  { "id": "MEX", "name": "Mexico", "ownerId": "o1" },
+  { "id": "MAR", "name": "Morocco", "ownerId": "o1" },
+  { "id": "COD", "name": "Congo DR", "ownerId": "o1" },
+  { "id": "GHA", "name": "Ghana", "ownerId": "o1" },
+
+  { "id": "KOR", "name": "South Korea", "ownerId": "o2" },
+  { "id": "ESP", "name": "Spain", "ownerId": "o2" },
+  { "id": "UZB", "name": "Uzbekistan", "ownerId": "o2" },
+  { "id": "SCO", "name": "Scotland", "ownerId": "o2" },
+
+  { "id": "CAN", "name": "Canada", "ownerId": "o3" },
+  { "id": "QAT", "name": "Qatar", "ownerId": "o3" },
+  { "id": "SWE", "name": "Sweden", "ownerId": "o3" },
+  { "id": "CPV", "name": "Cabo Verde", "ownerId": "o3" },
+
+  { "id": "BRA", "name": "Brazil", "ownerId": "o4" },
+  { "id": "TUR", "name": "Turkiye", "ownerId": "o4" },
+  { "id": "URU", "name": "Uruguay", "ownerId": "o4" },
+  { "id": "SEN", "name": "Senegal", "ownerId": "o4" },
+
+  { "id": "HAI", "name": "Haiti", "ownerId": "o5" },
+  { "id": "IRQ", "name": "Iraq", "ownerId": "o5" },
+  { "id": "NZL", "name": "New Zealand", "ownerId": "o5" },
+  { "id": "PAN", "name": "Panama", "ownerId": "o5" },
+
+  { "id": "USA", "name": "USA", "ownerId": "o6" },
+  { "id": "FRA", "name": "France", "ownerId": "o6" },
+  { "id": "RSA", "name": "South Africa", "ownerId": "o6" },
+  { "id": "NOR", "name": "Norway", "ownerId": "o6" },
+
+  { "id": "AUS", "name": "Australia", "ownerId": "o7" },
+  { "id": "JPN", "name": "Japan", "ownerId": "o7" },
+  { "id": "JOR", "name": "Jordan", "ownerId": "o7" },
+  { "id": "COL", "name": "Colombia", "ownerId": "o7" },
+
+  { "id": "GER", "name": "Germany", "ownerId": "o8" },
+  { "id": "POR", "name": "Portugal", "ownerId": "o8" },
+  { "id": "TUN", "name": "Tunisia", "ownerId": "o8" },
+  { "id": "EGY", "name": "Egypt", "ownerId": "o8" },
+
+  { "id": "CIV", "name": "Cote d'Ivoire", "ownerId": "o9" },
+  { "id": "KSA", "name": "Saudi Arabia", "ownerId": "o9" },
+  { "id": "ARG", "name": "Argentina", "ownerId": "o9" },
+  { "id": "BIH", "name": "Bosnia-Herzegovina", "ownerId": "o9" },
+
+  { "id": "NED", "name": "Netherlands", "ownerId": "o10" },
+  { "id": "SUI", "name": "Switzerland", "ownerId": "o10" },
+  { "id": "ALG", "name": "Algeria", "ownerId": "o10" },
+  { "id": "CRO", "name": "Croatia", "ownerId": "o10" },
+
+  { "id": "BEL", "name": "Belgium", "ownerId": "o11" },
+  { "id": "AUT", "name": "Austria", "ownerId": "o11" },
+  { "id": "ENG", "name": "England", "ownerId": "o11" },
+  { "id": "ECU", "name": "Ecuador", "ownerId": "o11" },
+
+  { "id": "IRN", "name": "IR Iran", "ownerId": "o12" },
+  { "id": "CZE", "name": "Czechia", "ownerId": "o12" },
+  { "id": "PAR", "name": "Paraguay", "ownerId": "o12" },
+  { "id": "CUW", "name": "Curacao", "ownerId": "o12" }
+]
