@@ -95,7 +95,7 @@ h1 {
 
 .controls {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
   margin: 14px 0 18px;
   position: sticky;
@@ -405,7 +405,7 @@ select {
 
   .controls {
     width: fit-content;
-    grid-template-columns: repeat(2, minmax(180px, 220px));
+    grid-template-columns: repeat(3, minmax(180px, 220px));
     gap: 14px;
   }
 

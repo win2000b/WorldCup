@@ -13,6 +13,7 @@ const state = {
   qualifierCandidates: {},
   stageFilter: "all",
   ownerFilter: "all",
+  teamFilter: "all",
   loadedAt: null,
   apiStatus: "not-run"
 };
@@ -22,6 +23,7 @@ const ownerSummaryEl = document.querySelector("#ownerSummary");
 const statusBarEl = document.querySelector("#statusBar");
 const stageFilterEl = document.querySelector("#stageFilter");
 const ownerFilterEl = document.querySelector("#ownerFilter");
+const teamFilterEl = document.querySelector("#teamFilter");
 
 const ukDateTimeFormat = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Europe/London",
@@ -100,6 +102,8 @@ function setupFilters() {
     ownerFilterEl.append(option);
   });
 
+  populateTeamFilterOptions();
+
   stageFilterEl.addEventListener("change", () => {
     state.stageFilter = stageFilterEl.value;
     render();
@@ -107,8 +111,33 @@ function setupFilters() {
 
   ownerFilterEl.addEventListener("change", () => {
     state.ownerFilter = ownerFilterEl.value;
+    state.teamFilter = "all";
+    populateTeamFilterOptions();
     render();
   });
+
+  teamFilterEl.addEventListener("change", () => {
+    state.teamFilter = teamFilterEl.value;
+    render();
+  });
+}
+
+function populateTeamFilterOptions() {
+  const selectedTeam = state.teamFilter;
+  const teams = state.ownerFilter === "all" ? state.teams : state.teams.filter((team) => team.ownerId === state.ownerFilter);
+
+  teamFilterEl.innerHTML = '<option value="all">All teams</option>';
+
+  teams.forEach((team) => {
+    const option = document.createElement("option");
+    option.value = team.id;
+    option.textContent = team.name;
+    teamFilterEl.append(option);
+  });
+
+  const validTeamIds = new Set(teams.map((team) => team.id));
+  teamFilterEl.value = validTeamIds.has(selectedTeam) ? selectedTeam : "all";
+  state.teamFilter = teamFilterEl.value;
 }
 
 async function refreshResults() {
@@ -406,12 +435,21 @@ function filterFixture(fixture) {
     return false;
   }
 
-  if (state.ownerFilter === "all") {
-    return true;
+  const teamIds = getFixtureTeamIds(fixture);
+
+  if (state.ownerFilter !== "all" && !teamIds.some((teamId) => getOwnerIdByTeamId(teamId) === state.ownerFilter)) {
+    return false;
   }
 
-  const teamIds = uniq([fixture.home.teamId, fixture.away.teamId, ...fixture.homeCandidates, ...fixture.awayCandidates].filter(Boolean));
-  return teamIds.some((teamId) => getOwnerIdByTeamId(teamId) === state.ownerFilter);
+  if (state.teamFilter !== "all" && !teamIds.includes(state.teamFilter)) {
+    return false;
+  }
+
+  return true;
+}
+
+function getFixtureTeamIds(fixture) {
+  return uniq([fixture.home.teamId, fixture.away.teamId, ...fixture.homeCandidates, ...fixture.awayCandidates].filter(Boolean));
 }
 
 function sortFixture(a, b) {
