@@ -126,6 +126,10 @@ select {
   gap: 10px;
 }
 
+.fixture-list[hidden] {
+  display: none;
+}
+
 .played-toggle {
   margin: 2px 0 8px;
   width: 100%;
