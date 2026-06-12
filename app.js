@@ -265,7 +265,7 @@ function render() {
     .sort(sortFixture);
 
   const upcomingFixtures = renderedFixtures.filter((fixture) => !isPlayedFixture(fixture));
-  const playedFixtures = renderedFixtures.filter((fixture) => isPlayedFixture(fixture)).sort(sortPlayedFixture);
+  const playedFixtures = renderedFixtures.filter((fixture) => isPlayedFixture(fixture));
 
   renderStatusBar();
   renderFixtureLists(upcomingFixtures, playedFixtures);
@@ -495,15 +495,6 @@ function sortFixture(a, b) {
     return dateA - dateB;
   }
   return (a.sortIndex || 0) - (b.sortIndex || 0);
-}
-
-function sortPlayedFixture(a, b) {
-  const dateA = Date.parse(a.kickoffUtc);
-  const dateB = Date.parse(b.kickoffUtc);
-  if (Number.isFinite(dateA) && Number.isFinite(dateB) && dateA !== dateB) {
-    return dateB - dateA;
-  }
-  return (b.sortIndex || 0) - (a.sortIndex || 0);
 }
 
 function isPlayedFixture(fixture) {
