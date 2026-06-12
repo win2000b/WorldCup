@@ -131,6 +131,31 @@ select {
   gap: 10px;
 }
 
+.played-toggle {
+  margin-top: 8px;
+  width: 100%;
+  border: 1px solid #d8cdc1;
+  border-radius: 999px;
+  background: rgba(255, 253, 249, 0.9);
+  color: var(--ink-soft);
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.played-toggle:hover {
+  border-color: #c8bbac;
+  color: var(--ink);
+}
+
+.played-list {
+  margin-top: 8px;
+}
+
 .fixture-card {
   background: var(--card);
   border: 1px solid #e5d9cc;

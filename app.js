@@ -14,6 +14,7 @@ const state = {
   stageFilter: "all",
   ownerFilter: "all",
   teamFilter: "all",
+  showPlayed: false,
   loadedAt: null,
   apiStatus: "not-run"
 };
@@ -24,6 +25,8 @@ const statusBarEl = document.querySelector("#statusBar");
 const stageFilterEl = document.querySelector("#stageFilter");
 const ownerFilterEl = document.querySelector("#ownerFilter");
 const teamFilterEl = document.querySelector("#teamFilter");
+const playedToggleEl = document.querySelector("#playedToggle");
+const playedFixtureListEl = document.querySelector("#playedFixtureList");
 
 const ukDateTimeFormat = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Europe/London",
@@ -54,6 +57,7 @@ async function init() {
 
   hydrateFromCache();
   setupFilters();
+  setupPlayedToggle();
   render();
 
   await refreshResults();
@@ -260,9 +264,23 @@ function render() {
     .filter((fixture) => filterFixture(fixture))
     .sort(sortFixture);
 
+  const upcomingFixtures = renderedFixtures.filter((fixture) => !isPlayedFixture(fixture));
+  const playedFixtures = renderedFixtures.filter((fixture) => isPlayedFixture(fixture)).sort(sortPlayedFixture);
+
   renderStatusBar();
-  renderFixtureList(renderedFixtures);
+  renderFixtureLists(upcomingFixtures, playedFixtures);
   renderOwnerSummary();
+}
+
+function setupPlayedToggle() {
+  if (!playedToggleEl) {
+    return;
+  }
+
+  playedToggleEl.addEventListener("click", () => {
+    state.showPlayed = !state.showPlayed;
+    render();
+  });
 }
 
 function renderStatusBar() {
@@ -282,13 +300,28 @@ function renderStatusBar() {
   statusBarEl.textContent = `${sourceText}. ${lastUpdate}.`;
 }
 
-function renderFixtureList(fixtures) {
-  if (fixtures.length === 0) {
+function renderFixtureLists(upcomingFixtures, playedFixtures) {
+  if (upcomingFixtures.length === 0) {
     fixtureListEl.innerHTML = '<article class="empty-state">No fixtures match your filters.</article>';
+  } else {
+    fixtureListEl.innerHTML = renderFixtureCards(upcomingFixtures);
+  }
+
+  if (!playedToggleEl || !playedFixtureListEl) {
     return;
   }
 
-  fixtureListEl.innerHTML = fixtures
+  playedToggleEl.textContent = `Played Games (${playedFixtures.length})`;
+  playedToggleEl.setAttribute("aria-expanded", String(state.showPlayed));
+
+  playedFixtureListEl.hidden = !state.showPlayed;
+  playedFixtureListEl.innerHTML = playedFixtures.length
+    ? renderFixtureCards(playedFixtures)
+    : '<article class="empty-state">No played games match your filters.</article>';
+}
+
+function renderFixtureCards(fixtures) {
+  return fixtures
     .map((fixture) => {
       const homeTeam = fixture.home;
       const awayTeam = fixture.away;
@@ -462,6 +495,20 @@ function sortFixture(a, b) {
     return dateA - dateB;
   }
   return (a.sortIndex || 0) - (b.sortIndex || 0);
+}
+
+function sortPlayedFixture(a, b) {
+  const dateA = Date.parse(a.kickoffUtc);
+  const dateB = Date.parse(b.kickoffUtc);
+  if (Number.isFinite(dateA) && Number.isFinite(dateB) && dateA !== dateB) {
+    return dateB - dateA;
+  }
+  return (b.sortIndex || 0) - (a.sortIndex || 0);
+}
+
+function isPlayedFixture(fixture) {
+  const upper = (fixture.status || "").toUpperCase();
+  return upper === "FINISHED" || upper === "FT";
 }
 
 function teamOwnerLabel(teamId, candidateTeamIds = []) {
