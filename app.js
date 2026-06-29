@@ -356,7 +356,7 @@ function renderFixtureCards(fixtures) {
             </div>
           </div>
           <div class="fixture-meta">
-            <span>🕐 ${escapeHtml(formatUkDate(fixture.kickoffUtc))}</span>
+            <span>🕐 ${escapeHtml(formatKickoffDate(fixture.kickoffUtc))}</span>
             <span>📺 ${escapeHtml(formatChannel(fixture))}</span>
           </div>
         </article>
@@ -565,6 +565,22 @@ function formatUkDate(utcIso) {
     return "TBC";
   }
   return `${ukDateTimeFormat.format(date)} UK`;
+}
+
+function formatKickoffDate(utcIso) {
+  const date = new Date(utcIso);
+  if (Number.isNaN(date.getTime())) {
+    return "TBC";
+  }
+
+  // Show both views so fixtures near midnight UTC are unambiguous.
+  const ukLabel = formatUkDate(utcIso);
+  const utcLabel = date
+    .toISOString()
+    .slice(0, 16)
+    .replace("T", " ");
+
+  return `${ukLabel} (${utcLabel} UTC)`;
 }
 
 function formatChannel(fixture) {
