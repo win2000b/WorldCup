@@ -18,6 +18,7 @@ function mapApiFootballResult(match) {
   return {
     providerMatchId: String(fixture.id || ""),
     status: normalizeStatus(status.short || status.long),
+    kickoffUtc: fixture.date || null,
     homeTeamId: teams.home?.code || null,
     awayTeamId: teams.away?.code || null,
     winnerTeamId: teams.home?.winner ? teams.home?.code : teams.away?.winner ? teams.away?.code : null,
@@ -37,6 +38,7 @@ function mapFootballDataResult(match) {
   return {
     providerMatchId: String(match.id || ""),
     status: normalizeStatus(match.status),
+    kickoffUtc: match.utcDate || null,
     homeTeamId: homeCode,
     awayTeamId: awayCode,
     winnerTeamId: match.score?.winner === "HOME_TEAM" ? homeCode : match.score?.winner === "AWAY_TEAM" ? awayCode : null,

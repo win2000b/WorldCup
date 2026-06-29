@@ -193,17 +193,12 @@ function mergeResultsIntoFixtures(fixtures, results) {
       return fixture;
     }
 
-    const homeTeamCompatible = isApiTeamCompatibleWithSlot(fixture, fixture.homeSlot, result.homeTeamId);
-    const awayTeamCompatible = isApiTeamCompatibleWithSlot(fixture, fixture.awaySlot, result.awayTeamId);
-
-    // Ignore provider rows that do not match this fixture's slot constraints.
-    // This prevents wrong knockout pairings being shown on the wrong kickoff.
-    if (!homeTeamCompatible || !awayTeamCompatible) {
-      return fixture;
-    }
-
     const nextFixture = { ...fixture };
     nextFixture.status = result.status || fixture.status;
+
+    if (result.kickoffUtc) {
+      nextFixture.kickoffUtc = result.kickoffUtc;
+    }
 
     if (result.score) {
       nextFixture.score = {
@@ -245,30 +240,6 @@ function mergeResultsIntoFixtures(fixtures, results) {
 
     return nextFixture;
   });
-}
-
-function isApiTeamCompatibleWithSlot(fixture, slot, teamId) {
-  if (!teamId || !isKnownTeam(teamId)) {
-    return true;
-  }
-
-  if (!slot) {
-    return true;
-  }
-
-  if (slot.type === "TEAM") {
-    return slot.teamId === teamId;
-  }
-
-  const resolved = resolveSlot(slot, fixture.id);
-  const candidates = resolved.candidateTeamIds || [];
-
-  // If we cannot infer candidates for this slot yet, allow the API update.
-  if (candidates.length === 0) {
-    return true;
-  }
-
-  return candidates.includes(teamId);
 }
 
 function mergeFixtures(baseFixtures, patchFixtures) {
