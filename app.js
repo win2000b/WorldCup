@@ -4,7 +4,7 @@ const DATA_FILES = {
   fixtures: "./data/fixtures.json"
 };
 
-const CACHE_KEY = "worldcup_sweepstake_cache_v2";
+const CACHE_KEY = "worldcup_sweepstake_cache_v4";
 
 const state = {
   owners: [],
