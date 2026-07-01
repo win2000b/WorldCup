@@ -4,7 +4,7 @@ const DATA_FILES = {
   fixtures: "./data/fixtures.json"
 };
 
-const CACHE_KEY = "worldcup_sweepstake_cache_v3";
+const CACHE_KEY = "worldcup_sweepstake_cache_v2";
 
 const state = {
   owners: [],
@@ -203,12 +203,15 @@ function mergeResultsIntoFixtures(fixtures, results) {
       return fixture;
     }
 
-    if (!isResultAlignedWithFixture(fixture, result)) {
-      return fixture;
-    }
-
     const nextFixture = { ...fixture };
     nextFixture.status = result.status || fixture.status;
+
+    if (result.kickoffUtc) {
+      const parsedKickoff = Date.parse(result.kickoffUtc);
+      if (Number.isFinite(parsedKickoff)) {
+        nextFixture.kickoffUtc = result.kickoffUtc;
+      }
+    }
 
     if (result.score) {
       nextFixture.score = {
@@ -258,20 +261,6 @@ function mergeResultsIntoFixtures(fixtures, results) {
 
     return nextFixture;
   });
-}
-
-function isResultAlignedWithFixture(fixture, result) {
-  const fixtureKickoff = Date.parse(fixture.kickoffUtc);
-  const resultKickoff = Date.parse(result.kickoffUtc);
-
-  if (!Number.isFinite(fixtureKickoff) || !Number.isFinite(resultKickoff)) {
-    return false;
-  }
-
-  // If the API kickoff differs too much, it's likely a provider mismatch for
-  // this fixture ID and should be ignored.
-  const MAX_ALLOWED_DRIFT_MS = 6 * 60 * 60 * 1000;
-  return Math.abs(fixtureKickoff - resultKickoff) <= MAX_ALLOWED_DRIFT_MS;
 }
 
 function canApplyApiTeamToSlot(slot, teamId) {
