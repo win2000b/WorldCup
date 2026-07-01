@@ -206,13 +206,6 @@ function mergeResultsIntoFixtures(fixtures, results) {
     const nextFixture = { ...fixture };
     nextFixture.status = result.status || fixture.status;
 
-    if (result.kickoffUtc) {
-      const parsedKickoff = Date.parse(result.kickoffUtc);
-      if (Number.isFinite(parsedKickoff)) {
-        nextFixture.kickoffUtc = result.kickoffUtc;
-      }
-    }
-
     if (result.score) {
       nextFixture.score = {
         home: result.score.home,
