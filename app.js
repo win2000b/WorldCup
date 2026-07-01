@@ -412,6 +412,15 @@ function resolveSlot(slot, fixtureId, seen = new Set()) {
 
   if (slot.type === "QUALIFIER") {
     const candidates = state.qualifierCandidates[slot.qualifierKey] || [];
+    const resolvedTeamId = resolveQualifierTeamId(slot.qualifierKey);
+    if (resolvedTeamId) {
+      return {
+        label: getTeamName(resolvedTeamId),
+        teamId: resolvedTeamId,
+        candidateTeamIds: [resolvedTeamId]
+      };
+    }
+
     return {
       label: slot.label || slot.qualifierKey || "TBC",
       teamId: null,
@@ -507,6 +516,96 @@ function isPlayedFixture(fixture) {
 
   const PAST_GRACE_MS = 4 * 60 * 60 * 1000;
   return kickoff + PAST_GRACE_MS < Date.now();
+}
+
+function resolveQualifierTeamId(qualifierKey) {
+  const match = /^(WINNER|RUNNERUP)_GROUP_([A-Z])$/.exec(qualifierKey || "");
+  if (!match) {
+    return null;
+  }
+
+  const placement = match[1];
+  const groupCode = match[2];
+  const standings = getCompletedGroupStandings(groupCode);
+  if (!standings || standings.length < 2) {
+    return null;
+  }
+
+  return placement === "WINNER" ? standings[0].teamId : standings[1].teamId;
+}
+
+function getCompletedGroupStandings(groupCode) {
+  const groupFixtures = state.fixtures.filter(
+    (fixture) => fixture.stage === "Group" && getGroupCodeFromRoundLabel(fixture.roundLabel) === groupCode
+  );
+
+  if (groupFixtures.length === 0 || !groupFixtures.every((fixture) => hasFinalScore(fixture))) {
+    return null;
+  }
+
+  const table = new Map();
+
+  const ensureTeam = (teamId) => {
+    if (!teamId) {
+      return null;
+    }
+
+    if (!table.has(teamId)) {
+      table.set(teamId, { teamId, pts: 0, gd: 0, gf: 0 });
+    }
+
+    return table.get(teamId);
+  };
+
+  groupFixtures.forEach((fixture) => {
+    const homeId = fixture.homeSlot?.type === "TEAM" ? fixture.homeSlot.teamId : null;
+    const awayId = fixture.awaySlot?.type === "TEAM" ? fixture.awaySlot.teamId : null;
+    if (!homeId || !awayId) {
+      return;
+    }
+
+    const home = ensureTeam(homeId);
+    const away = ensureTeam(awayId);
+    const homeGoals = fixture.score.home;
+    const awayGoals = fixture.score.away;
+
+    home.gf += homeGoals;
+    away.gf += awayGoals;
+    home.gd += homeGoals - awayGoals;
+    away.gd += awayGoals - homeGoals;
+
+    if (homeGoals > awayGoals) {
+      home.pts += 3;
+    } else if (awayGoals > homeGoals) {
+      away.pts += 3;
+    } else {
+      home.pts += 1;
+      away.pts += 1;
+    }
+  });
+
+  return [...table.values()].sort((a, b) => {
+    if (b.pts !== a.pts) {
+      return b.pts - a.pts;
+    }
+    if (b.gd !== a.gd) {
+      return b.gd - a.gd;
+    }
+    if (b.gf !== a.gf) {
+      return b.gf - a.gf;
+    }
+    return a.teamId.localeCompare(b.teamId);
+  });
+}
+
+function getGroupCodeFromRoundLabel(roundLabel) {
+  const match = /^Group\s+([A-Z])\b/.exec(roundLabel || "");
+  return match ? match[1] : null;
+}
+
+function hasFinalScore(fixture) {
+  const status = (fixture.status || "").toUpperCase();
+  return (status === "FINISHED" || status === "FT") && Number.isFinite(fixture.score?.home) && Number.isFinite(fixture.score?.away);
 }
 
 function teamOwnerLabel(teamId, candidateTeamIds = []) {
