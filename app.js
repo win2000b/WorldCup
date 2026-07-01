@@ -224,7 +224,12 @@ function mergeResultsIntoFixtures(fixtures, results) {
     // Only update team slots when the fixture slot is currently unresolved
     // (QUALIFIER or WINNER_OF_MATCH). Never overwrite a fixed TEAM slot from
     // the JSON with an API team code — the API can return wrong codes.
-    if (result.homeTeamId && isKnownTeam(result.homeTeamId) && fixture.homeSlot?.type !== "TEAM") {
+    if (
+      result.homeTeamId &&
+      isKnownTeam(result.homeTeamId) &&
+      fixture.homeSlot?.type !== "TEAM" &&
+      isTeamAllowedForSlot(fixture.homeSlot, result.homeTeamId, fixtures)
+    ) {
       nextFixture.homeSlot = {
         type: "TEAM",
         teamId: result.homeTeamId,
@@ -232,7 +237,12 @@ function mergeResultsIntoFixtures(fixtures, results) {
       };
     }
 
-    if (result.awayTeamId && isKnownTeam(result.awayTeamId) && fixture.awaySlot?.type !== "TEAM") {
+    if (
+      result.awayTeamId &&
+      isKnownTeam(result.awayTeamId) &&
+      fixture.awaySlot?.type !== "TEAM" &&
+      isTeamAllowedForSlot(fixture.awaySlot, result.awayTeamId, fixtures)
+    ) {
       nextFixture.awaySlot = {
         type: "TEAM",
         teamId: result.awayTeamId,
@@ -246,6 +256,45 @@ function mergeResultsIntoFixtures(fixtures, results) {
 
     return nextFixture;
   });
+}
+
+function isTeamAllowedForSlot(slot, teamId, fixtures, seen = new Set()) {
+  if (!slot || !teamId) {
+    return false;
+  }
+
+  if (slot.type === "TEAM") {
+    return slot.teamId === teamId;
+  }
+
+  if (slot.type === "QUALIFIER") {
+    const candidates = state.qualifierCandidates[slot.qualifierKey] || [];
+    return candidates.includes(teamId);
+  }
+
+  if (slot.type === "WINNER_OF_MATCH") {
+    if (!slot.matchRef || seen.has(slot.matchRef)) {
+      return false;
+    }
+
+    const referencedFixture = fixtures.find((fixture) => fixture.id === slot.matchRef);
+    if (!referencedFixture) {
+      return false;
+    }
+
+    if (referencedFixture.winnerTeamId) {
+      return referencedFixture.winnerTeamId === teamId;
+    }
+
+    const nextSeen = new Set(seen);
+    nextSeen.add(slot.matchRef);
+    return (
+      isTeamAllowedForSlot(referencedFixture.homeSlot, teamId, fixtures, nextSeen) ||
+      isTeamAllowedForSlot(referencedFixture.awaySlot, teamId, fixtures, nextSeen)
+    );
+  }
+
+  return false;
 }
 
 function mergeFixtures(baseFixtures, patchFixtures) {
