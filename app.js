@@ -228,10 +228,14 @@ function mergeResultsIntoFixtures(fixtures, results) {
       nextFixture.secondaryChannel = result.secondaryChannel;
     }
 
-    // Only update team slots when the fixture slot is currently unresolved
-    // (QUALIFIER or WINNER_OF_MATCH). Never overwrite a fixed TEAM slot from
-    // the JSON with an API team code — the API can return wrong codes.
-    if (result.homeTeamId && isKnownTeam(result.homeTeamId) && fixture.homeSlot?.type !== "TEAM") {
+    // Only update slot teams for QUALIFIER slots where the incoming team is a
+    // valid candidate. For WINNER_OF_MATCH slots, teams are resolved from
+    // winnerTeamId of prior fixtures to avoid incorrect API bracket mappings.
+    if (
+      result.homeTeamId &&
+      isKnownTeam(result.homeTeamId) &&
+      canApplyApiTeamToSlot(fixture.homeSlot, result.homeTeamId)
+    ) {
       nextFixture.homeSlot = {
         type: "TEAM",
         teamId: result.homeTeamId,
@@ -239,7 +243,11 @@ function mergeResultsIntoFixtures(fixtures, results) {
       };
     }
 
-    if (result.awayTeamId && isKnownTeam(result.awayTeamId) && fixture.awaySlot?.type !== "TEAM") {
+    if (
+      result.awayTeamId &&
+      isKnownTeam(result.awayTeamId) &&
+      canApplyApiTeamToSlot(fixture.awaySlot, result.awayTeamId)
+    ) {
       nextFixture.awaySlot = {
         type: "TEAM",
         teamId: result.awayTeamId,
@@ -253,6 +261,15 @@ function mergeResultsIntoFixtures(fixtures, results) {
 
     return nextFixture;
   });
+}
+
+function canApplyApiTeamToSlot(slot, teamId) {
+  if (!slot || !teamId || slot.type !== "QUALIFIER") {
+    return false;
+  }
+
+  const candidates = state.qualifierCandidates[slot.qualifierKey] || [];
+  return candidates.includes(teamId);
 }
 
 function mergeFixtures(baseFixtures, patchFixtures) {
