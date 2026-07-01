@@ -4,7 +4,7 @@ const DATA_FILES = {
   fixtures: "./data/fixtures.json"
 };
 
-const CACHE_KEY = "worldcup_sweepstake_cache_v3";
+const CACHE_KEY = "worldcup_sweepstake_cache_v2";
 
 const state = {
   owners: [],
@@ -193,12 +193,12 @@ function mergeResultsIntoFixtures(fixtures, results) {
       return fixture;
     }
 
-    if (!isResultAlignedWithFixture(fixture, result)) {
-      return fixture;
-    }
-
     const nextFixture = { ...fixture };
     nextFixture.status = result.status || fixture.status;
+
+    if (result.kickoffUtc) {
+      nextFixture.kickoffUtc = result.kickoffUtc;
+    }
 
     if (result.score) {
       nextFixture.score = {
@@ -215,24 +215,31 @@ function mergeResultsIntoFixtures(fixtures, results) {
       nextFixture.secondaryChannel = result.secondaryChannel;
     }
 
+    // Only update team slots when the fixture slot is currently unresolved
+    // (QUALIFIER or WINNER_OF_MATCH). Never overwrite a fixed TEAM slot from
+    // the JSON with an API team code — the API can return wrong codes.
+    if (result.homeTeamId && isKnownTeam(result.homeTeamId) && fixture.homeSlot?.type !== "TEAM") {
+      nextFixture.homeSlot = {
+        type: "TEAM",
+        teamId: result.homeTeamId,
+        label: getTeamName(result.homeTeamId)
+      };
+    }
+
+    if (result.awayTeamId && isKnownTeam(result.awayTeamId) && fixture.awaySlot?.type !== "TEAM") {
+      nextFixture.awaySlot = {
+        type: "TEAM",
+        teamId: result.awayTeamId,
+        label: getTeamName(result.awayTeamId)
+      };
+    }
+
     if (result.winnerTeamId && isKnownTeam(result.winnerTeamId)) {
       nextFixture.winnerTeamId = result.winnerTeamId;
     }
 
     return nextFixture;
   });
-}
-
-function isResultAlignedWithFixture(fixture, result) {
-  const fixtureKickoff = Date.parse(fixture.kickoffUtc);
-  const resultKickoff = Date.parse(result.kickoffUtc);
-
-  if (!Number.isFinite(fixtureKickoff) || !Number.isFinite(resultKickoff)) {
-    return false;
-  }
-
-  const MAX_KICKOFF_DRIFT_MS = 2 * 60 * 60 * 1000;
-  return Math.abs(fixtureKickoff - resultKickoff) <= MAX_KICKOFF_DRIFT_MS;
 }
 
 function mergeFixtures(baseFixtures, patchFixtures) {
@@ -496,17 +503,7 @@ function sortFixture(a, b) {
 
 function isPlayedFixture(fixture) {
   const upper = (fixture.status || "").toUpperCase();
-  if (upper === "FINISHED" || upper === "FT") {
-    return true;
-  }
-
-  const kickoff = Date.parse(fixture.kickoffUtc);
-  if (!Number.isFinite(kickoff)) {
-    return false;
-  }
-
-  const PAST_GRACE_MS = 4 * 60 * 60 * 1000;
-  return kickoff + PAST_GRACE_MS < Date.now();
+  return upper === "FINISHED" || upper === "FT";
 }
 
 function teamOwnerLabel(teamId, candidateTeamIds = []) {
