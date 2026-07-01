@@ -38,6 +38,16 @@ const ukDateTimeFormat = new Intl.DateTimeFormat("en-GB", {
   hour12: false
 });
 
+const scheduledDateTimeFormat = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "UTC",
+  weekday: "short",
+  day: "2-digit",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false
+});
+
 init().catch((error) => {
   statusBarEl.textContent = "Unable to load fixture data.";
   fixtureListEl.innerHTML = `<article class="empty-state">${escapeHtml(error.message)}</article>`;
@@ -195,10 +205,6 @@ function mergeResultsIntoFixtures(fixtures, results) {
 
     const nextFixture = { ...fixture };
     nextFixture.status = result.status || fixture.status;
-
-    if (result.kickoffUtc) {
-      nextFixture.kickoffUtc = result.kickoffUtc;
-    }
 
     if (result.score) {
       nextFixture.score = {
@@ -360,7 +366,7 @@ function renderFixtureCards(fixtures) {
             </div>
           </div>
           <div class="fixture-meta">
-            <span>🕐 ${escapeHtml(formatUkDate(fixture.kickoffUtc))}</span>
+            <span>🕐 ${escapeHtml(formatScheduledDate(fixture.kickoffUtc))}</span>
             <span>📺 ${escapeHtml(formatChannel(fixture))}</span>
           </div>
         </article>
@@ -563,12 +569,12 @@ function getOwnerIdByTeamId(teamId) {
   return state.teams.find((team) => team.id === teamId)?.ownerId || null;
 }
 
-function formatUkDate(utcIso) {
+function formatScheduledDate(utcIso) {
   const date = new Date(utcIso);
   if (Number.isNaN(date.getTime())) {
     return "TBC";
   }
-  return `${ukDateTimeFormat.format(date)} UK`;
+  return `${scheduledDateTimeFormat.format(date)} scheduled`;
 }
 
 function formatChannel(fixture) {
